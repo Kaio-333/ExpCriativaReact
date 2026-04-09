@@ -2,6 +2,21 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+function normalizarLivro(body) {
+  const titulo = body.titulo?.trim();
+  const autor = body.autor?.trim();
+  const genero = body.genero?.trim() || null;
+  const isbn = body.isbn?.trim() || null;
+  const ano_publicacao = body.ano_publicacao === '' || body.ano_publicacao == null
+    ? null
+    : Number(body.ano_publicacao);
+  const quantidade = body.quantidade === '' || body.quantidade == null
+    ? 1
+    : Number(body.quantidade);
+
+  return { titulo, autor, genero, ano_publicacao, isbn, quantidade };
+}
+
 // GET - listar todos os livros
 router.get('/', (req, res) => {
   db.query('SELECT * FROM livros', (err, results) => {
@@ -21,7 +36,7 @@ router.get('/:id', (req, res) => {
 
 // POST - criar um livro
 router.post('/', (req, res) => {
-  const { titulo, autor, genero, ano_publicacao, isbn, quantidade } = req.body;
+  const { titulo, autor, genero, ano_publicacao, isbn, quantidade } = normalizarLivro(req.body);
   if (!titulo || !autor) return res.status(400).json({ error: 'Título e autor são obrigatórios' });
   db.query(
     'INSERT INTO livros (titulo, autor, genero, ano_publicacao, isbn, quantidade) VALUES (?, ?, ?, ?, ?, ?)',
@@ -35,7 +50,8 @@ router.post('/', (req, res) => {
 
 // PUT - atualizar um livro
 router.put('/:id', (req, res) => {
-  const { titulo, autor, genero, ano_publicacao, isbn, quantidade } = req.body;
+  const { titulo, autor, genero, ano_publicacao, isbn, quantidade } = normalizarLivro(req.body);
+  if (!titulo || !autor) return res.status(400).json({ error: 'Título e autor são obrigatórios' });
   db.query(
     'UPDATE livros SET titulo=?, autor=?, genero=?, ano_publicacao=?, isbn=?, quantidade=? WHERE id=?',
     [titulo, autor, genero, ano_publicacao, isbn, quantidade, req.params.id],

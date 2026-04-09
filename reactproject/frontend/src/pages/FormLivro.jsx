@@ -14,7 +14,14 @@ function FormLivro() {
   useEffect(() => {
     if (isEdicao) {
       api.get(`/livros/${id}`)
-        .then(res => setForm(res.data))
+        .then(res => setForm({
+          titulo: res.data.titulo || '',
+          autor: res.data.autor || '',
+          genero: res.data.genero || '',
+          ano_publicacao: res.data.ano_publicacao ?? '',
+          isbn: res.data.isbn || '',
+          quantidade: res.data.quantidade ?? '',
+        }))
         .catch(() => setErro('Erro ao carregar dados do livro.'));
     }
   }, [id, isEdicao]);
@@ -27,7 +34,15 @@ function FormLivro() {
     e.preventDefault();
     setErro('');
     if (!form.titulo || !form.autor) { setErro('Título e autor são obrigatórios.'); return; }
-    const req = isEdicao ? api.put(`/livros/${id}`, form) : api.post('/livros', form);
+    const payload = {
+      titulo: form.titulo,
+      autor: form.autor,
+      genero: form.genero,
+      isbn: form.isbn,
+      quantidade: form.quantidade,
+      ...(form.ano_publicacao ? { ano_publicacao: form.ano_publicacao } : {}),
+    };
+    const req = isEdicao ? api.put(`/livros/${id}`, payload) : api.post('/livros', payload);
     req.then(() => { setSucesso(isEdicao ? 'Livro atualizado!' : 'Livro cadastrado!'); setTimeout(() => navigate('/'), 1500); })
        .catch(() => setErro('Erro ao salvar livro.'));
   }
@@ -38,7 +53,7 @@ function FormLivro() {
     { label: 'Gênero', name: 'genero', type: 'text' },
     { label: 'Ano de Publicação', name: 'ano_publicacao', type: 'number' },
     { label: 'ISBN', name: 'isbn', type: 'text' },
-    { label: 'Quantidade', name: 'quantidade', type: 'number' },
+    { label: 'Quantidade *', name: 'quantidade', type: 'number' },
   ];
 
   return (
