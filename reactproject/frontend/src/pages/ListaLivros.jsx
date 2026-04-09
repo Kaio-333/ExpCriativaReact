@@ -40,7 +40,7 @@ function ListaLivros() {
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <h2 style={styles.cardTitle}>Acervo</h2>
-            <button style={styles.btnPrimary} onClick={() => navigate('/novo')}>+ Novo Livro</button>
+            <button style={styles.btnPrimary} onClick={() => navigate('/novoLivro')}>+ Novo Livro</button>
           </div>
 
           {erro && <p style={styles.erro}>{erro}</p>}
